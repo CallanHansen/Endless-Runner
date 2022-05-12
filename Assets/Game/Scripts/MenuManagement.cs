@@ -5,7 +5,7 @@ public class MenuManagement : MonoBehaviour
 {
     public void ReloadCurrentScene()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);     
     }
 
    public void LoadScene(string _sceneToLoad)

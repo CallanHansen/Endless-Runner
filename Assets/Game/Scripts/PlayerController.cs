@@ -96,6 +96,11 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Hazard"))
         {
             GameManager.Instance.GameOver();
-        } 
+        }
+
+        if (other.gameObject.CompareTag("NextTrack"))
+        {
+            TrackGeneration.Instance.ChooseNextTrack();
+        }
     }
 }
