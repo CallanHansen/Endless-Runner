@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Cinemachine;
 
 public class MenuManagement : MonoBehaviour
 {
+
     public void ReloadCurrentScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);     

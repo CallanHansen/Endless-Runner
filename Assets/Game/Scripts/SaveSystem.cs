@@ -4,13 +4,13 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public static class SaveSystem
 {
-    public static void SaveHighScore() // Save the high score into binary file
+    public static void SaveHighScore(float score) // Save the high score into binary file
     {
         BinaryFormatter formatter = new BinaryFormatter();
         string path = Application.persistentDataPath + "/score.fun";
         FileStream stream = new FileStream(path, FileMode.Create);
 
-        ScoreData data = new ScoreData();
+        ScoreData data = new ScoreData(score);
 
         formatter.Serialize(stream, data); // Write data to file
         stream.Close();
@@ -32,7 +32,6 @@ public static class SaveSystem
         }
         else
         {
-            Debug.LogError("Save file not found in " + path);
             return null;
         }
     }

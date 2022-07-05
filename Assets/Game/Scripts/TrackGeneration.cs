@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Pool;
+using System.Collections;
 
 public class TrackGeneration : MonoBehaviour
 { 
@@ -6,13 +8,16 @@ public class TrackGeneration : MonoBehaviour
     [SerializeField] private Transform nextTrackPosition = null;
 
     public static TrackGeneration Instance;
-    private const int TRACKS_TO_SPAWN_ON_START = 3;
+    private const int TRACKS_TO_SPAWN_ON_START = 2;
 
     private int randomTrackChoice = 0;
-    private int previousTrack = 0;
+    private int previousTrackIndex = 0;
+
+    public GameObject trackPrefab;
 
     void Start()
     {
+
         #region  Singleton
         if (Instance == null)
         {
@@ -33,7 +38,7 @@ public class TrackGeneration : MonoBehaviour
     {
         Debug.Log("Spawn the next track!");
 
-        previousTrack = randomTrackChoice;
+        previousTrackIndex = randomTrackChoice;
         randomTrackChoice = Random.Range(0, trackToSpawn.Length);
 
         if (_randomTrack) 
@@ -42,6 +47,7 @@ public class TrackGeneration : MonoBehaviour
         }
         else 
         {
+            //GameObject track1 = ObjectPool.Instance.SpawnFromPool(trackToSpawn[0].name, nextTrackPosition.transform.position, Quaternion.identity);
             GameObject temp = Instantiate<GameObject>(trackToSpawn[0].gameObject, nextTrackPosition.transform.position, Quaternion.identity); // Create an empty track tile 
             nextTrackPosition = temp.transform.GetChild(0).transform;
         }       
@@ -53,8 +59,10 @@ public class TrackGeneration : MonoBehaviour
 
         if (!IsTrackSameAsPrevious()) // Ensuring that the track isnt the same as the previous track that was spawned
         {
-            GameObject temp = Instantiate<GameObject>(trackToSpawn[randomTrackChoice].gameObject, nextTrackPosition.transform.position, Quaternion.identity);
-            nextTrackPosition = temp.transform.GetChild(0).transform;
+            trackPrefab = trackToSpawn[randomTrackChoice].gameObject;
+
+            GameObject track = ObjectPool.Instance.SpawnFromPool(trackToSpawn[randomTrackChoice].name, nextTrackPosition.transform.position, Quaternion.identity);
+            nextTrackPosition = track.transform.GetChild(0).transform;
         } else
         {
             SpawnRandomTrack(); // Using recursion to spawn a different track if the track is the same as the previous track
@@ -63,7 +71,7 @@ public class TrackGeneration : MonoBehaviour
 
     bool IsTrackSameAsPrevious() // Checking if the track was the same as the previous 
     {
-        if (randomTrackChoice != previousTrack)
+        if (randomTrackChoice != previousTrackIndex)
         {
             return false;           
         } else

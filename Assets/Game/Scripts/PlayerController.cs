@@ -16,8 +16,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 rbVelocity = Vector3.zero;
 
     [Header("Lanes")]
-    [SerializeField] private Transform[] playerLaneLocations;
-    [SerializeField] private int currentLaneIndex = 1;
+    public Transform[] playerLaneLocations;
+    public int currentLaneIndex = 1;
 
     [Header("Jumping/Ground Checking")]
     [SerializeField] private Transform groundChecker = null;
@@ -39,7 +39,9 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float playerSlideCollisionHeight = 0.2f;
     [SerializeField] private Vector3 playerSlideCollisionCenter = Vector3.zero;
-    
+
+    private Animator anim;
+
     public static PlayerController Instance;
 
     // Awake is called before start
@@ -47,6 +49,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>(); // Assign rb variable to player rigidbody component
         playerCollision = GetComponent<CapsuleCollider>();
+        anim = GetComponentInChildren<Animator>();
 
         if(Instance == null) // If there is no instance set
         {
@@ -71,18 +74,17 @@ public class PlayerController : MonoBehaviour
         // Creates an invisible sphere around the groundChecker position at a set radius. If the ground collides with the invisible sphere, then true, the player is grounded, otherwise false.
         grounded = Physics.CheckSphere(groundChecker.position, groundCheckRadius, groundLayer);
 
+        anim.SetBool("Running", CanMove);
+
         if (CanMove)
         {
             CurrentSpeed += Time.deltaTime * SpeedIncreaseMultiplier; // Slowly increase the currentSpeed variable over time
 
-            #region Inputs
+            #region Keyboard Inputs
 
             if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
             {
-                if (grounded)
-                {
-                    Jump();
-                }
+                Jump();
             }
 
             if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
@@ -126,25 +128,31 @@ public class PlayerController : MonoBehaviour
             CurrentSpeed = 0;
             SpeedIncreaseMultiplier = 0;
         }
-
-        transform.position = Vector3.Lerp(transform.position, playerLaneLocations[currentLaneIndex].position, timeToSwitchLane);
+       
         slidingDebugText.text = "Is player sliding: " + sliding;
     }
 
     void FixedUpdate()
     {
+        transform.position = Vector3.Lerp(transform.position, playerLaneLocations[currentLaneIndex].position, timeToSwitchLane);
+
         rbVelocity = new Vector3(0, rb.velocity.y, CurrentSpeed * Time.deltaTime); // Move player forward at currentSpeed
         rb.velocity = rbVelocity; // Set the velocity
     }
 
-    void Jump()
+    public void Jump()
     {
-        sliding = false;
-        rb.velocity = new Vector3(0, jumpForce, CurrentSpeed * Time.deltaTime);
+        if (grounded)
+        {
+            sliding = false;
+            anim.SetTrigger("Jump");
+            rb.velocity = new Vector3(0, jumpForce, CurrentSpeed * Time.deltaTime);
+        }
     }
 
-    void Slide()
+    public void Slide()
     {
+        anim.SetTrigger("Slide");
         StartCoroutine(SlideCoroutine());
     }
 

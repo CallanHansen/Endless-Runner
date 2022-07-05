@@ -1,10 +1,10 @@
 [System.Serializable]
 public class ScoreData
 {
-    public float HighScore;
+    public float HighScore = 0;
 
-    public ScoreData()
+    public ScoreData(float score)
     {
-        HighScore = GameManager.Instance.HighScore;
+        HighScore = score;
     }
 }
